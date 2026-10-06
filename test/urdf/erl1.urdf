@@ -86,4 +86,100 @@
         </visual>
     </link>
 
+    <!-- rotational base -->
+    <joint name="joint_rotational_base" type="continuous">
+        <origin rpy="0 0 0" xyz="0 0 0.035"/>
+        <child link="rotational_base"/>
+        <parent link="link_chassis"/>
+        <axis rpy="0 0 0" xyz="0 0 1"/>
+    </joint>
+
+    <link name="rotational_base">
+        <inertial>
+            <mass value="5.0"/>
+            <origin xyz="0 0 .025" rpy="0 0 0"/>
+            <inertia
+                ixx="0.014" ixy="0" ixz="0"
+                iyy="0.014" iyz="0"
+                izz="0.025"
+            />
+        </inertial>
+        <collision>
+            <origin xyz="0 0 .025" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius=".05" length=".05"/>
+            </geometry>
+        </collision>
+        <visual name="rotational_base">
+            <origin xyz="0 0 .025" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius=".05" length=".05"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <!-- link 1 -->
+    <joint name="fixed_joint" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 0.05"/>
+        <child link="link_1"/>
+        <parent link="rotational_base"/> 
+    </joint>
+
+    <link name="link_1">
+        <inertial>
+            <mass value="5.0"/>
+            <origin xyz="0 0 .075" rpy="0 0 0"/>
+            <inertia
+                ixx="0.014" ixy="0" ixz="0"
+                iyy="0.014" iyz="0"
+                izz="0.025"
+            />
+        </inertial>
+        <collision>
+            <origin xyz="0 0 .075" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.04 0.04 0.15"/>
+            </geometry>
+        </collision>
+        <visual name="link_1">
+            <origin xyz="0 0 .075" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.04 0.04 0.15"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <!-- link 2 -->
+    <joint name="joint_link_2" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0.02 0.15"/>
+        <child link="link_2"/>
+        <parent link="link_1"/>
+        <axis rpy="0 0 0" xyz="0 1 0"/>
+        <limit lower="-1.57" upper="1.57" effort="2.0" velocity="2.0"/>
+    </joint>
+
+    <link name="link_2">
+        <inertial>
+            <mass value="5.0"/>
+            <origin xyz="0 0.02 0.075" rpy="0 0 0"/>
+            <inertia
+                ixx="0.014" ixy="0" ixz="0"
+                iyy="0.014" iyz="0"
+                izz="0.025"
+            />
+        </inertial>
+        <collision>
+            <origin xyz="0 0.02 0.075" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.04 0.04 0.15"/>
+            </geometry>
+        </collision>
+        <visual name="link_2">
+            <origin xyz="0 .02 0.075" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.04 0.04 0.15"/>
+            </geometry>
+        </visual>
+    </link>
+
 </robot>
