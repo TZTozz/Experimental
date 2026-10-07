@@ -151,17 +151,17 @@
 
     <!-- link 2 -->
     <joint name="joint_link_2" type="revolute">
-        <origin rpy="0 0 0" xyz="0 0.02 0.15"/>
+        <origin rpy="0 0 0" xyz="0.02 0 0.15"/>
         <child link="link_2"/>
         <parent link="link_1"/>
-        <axis rpy="0 0 0" xyz="0 1 0"/>
+        <axis rpy="0 0 0" xyz="1 0 0"/>
         <limit lower="-1.57" upper="1.57" effort="2.0" velocity="2.0"/>
     </joint>
 
     <link name="link_2">
         <inertial>
             <mass value="5.0"/>
-            <origin xyz="0 0.02 0.075" rpy="0 0 0"/>
+            <origin xyz="0.02 0 0.075" rpy="0 0 0"/>
             <inertia
                 ixx="0.014" ixy="0" ixz="0"
                 iyy="0.014" iyz="0"
@@ -169,13 +169,46 @@
             />
         </inertial>
         <collision>
-            <origin xyz="0 0.02 0.075" rpy="0 0 0"/>
+            <origin xyz="0.02 0 0.075" rpy="0 0 0"/>
             <geometry>
                 <box size="0.04 0.04 0.15"/>
             </geometry>
         </collision>
         <visual name="link_2">
-            <origin xyz="0 .02 0.075" rpy="0 0 0"/>
+            <origin xyz=".02 0 0.075" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.04 0.04 0.15"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <!-- link 3 -->
+    <joint name="joint_link_3" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0 0.15"/>
+        <child link="link_3"/>
+        <parent link="link_2"/>
+        <axis rpy="0 0 0" xyz="1 0 0"/>
+        <limit lower="-1.57" upper="1.57" effort="2.0" velocity="2.0"/>
+    </joint>
+
+    <link name="link_3">
+        <inertial>
+            <mass value="5.0"/>
+            <origin xyz="-0.02 0 0.075" rpy="0 0 0"/>
+            <inertia
+                ixx="0.014" ixy="0" ixz="0"
+                iyy="0.014" iyz="0"
+                izz="0.025"
+            />
+        </inertial>
+        <collision>
+            <origin xyz="-0.02 0 0.075" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.04 0.04 0.15"/>
+            </geometry>
+        </collision>
+        <visual name="link_3">
+            <origin xyz="-0.02 0 0.075" rpy="0 0 0"/>
             <geometry>
                 <box size="0.04 0.04 0.15"/>
             </geometry>
