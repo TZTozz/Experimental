@@ -13,7 +13,7 @@ def generate_launch_description():
         description='Name of the Gazebo world file to load'
     )
 
-    pkg_erl1= get_package_share_directory('erl1')
+    pkg_erl1= get_package_share_directory('test')
     pkg_ros_gz_sim = get_package_share_directory('ros_gz_sim')
 
     # Add your own gazebo library path here
