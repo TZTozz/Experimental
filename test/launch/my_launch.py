@@ -30,8 +30,8 @@ def generate_launch_description():
             'worlds',
             LaunchConfiguration('world')
         ]),
-        #TextSubstitution(text=' -r -v -v1 --render-engine ogre')],
-        TextSubstitution(text=' -r -v -v1')],
+        TextSubstitution(text=' -r -v -v1 --render-engine ogre')],
+        #TextSubstitution(text=' -r -v -v1')],
         'on_exit_shutdown': 'true'}.items()
     )
 
