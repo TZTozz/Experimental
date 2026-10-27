@@ -84,6 +84,19 @@ def generate_launch_description():
             ('/tf_static', 'tf_static')
         ]
     )
+
+    gz_image_bridge_node = Node(
+        package="ros_gz_image",
+        executable="image_bridge",
+        arguments=[
+            "/camera/image",
+        ],
+        output="screen",
+        parameters=[
+            {'use_sim_time': True,
+             'camera.image.compressed.jpeg_quality': 75},   #jpeg quality
+        ],
+    )
     
     # joint_state_publisher_gui_node = Node(
     #     package='joint_state_publisher_gui',
@@ -118,4 +131,5 @@ def generate_launch_description():
     launchDescriptionObject.add_action(spawn_urdf_node)
     launchDescriptionObject.add_action(robot_state_publisher_node)
     launchDescriptionObject.add_action(gz_bridge_node)
+    launchDescriptionObject.add_action(gz_image_bridge_node)
     return launchDescriptionObject
