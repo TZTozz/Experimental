@@ -113,7 +113,10 @@ def generate_launch_description():
             "/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry",
             "/joint_states@sensor_msgs/msg/JointState[gz.msgs.Model",
             "/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V",
-            "/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan"
+            "/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan",
+            "/camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image",
+            "/camera/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked"
+            "/camera_joint/cmd_pos@std_msgs/msg/Float64]gz.msgs.Double",
         ],
         output="screen",
         parameters=[
