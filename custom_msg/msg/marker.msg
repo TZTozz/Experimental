@@ -1,4 +1,4 @@
-int x
-int y
-int size
+int cx
+int cy
+int d
 int id
