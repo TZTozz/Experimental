@@ -5,8 +5,9 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /Image1
       Splitter Ratio: 0.5
-    Tree Height: 302
+    Tree Height: 183
   - Class: rviz_common/Views
     Expanded:
       - /Current View1
@@ -51,7 +52,35 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
+        camera_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        camera_link_optical:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        imu_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        left_wheel:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         link_chassis:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_wheel:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        scan_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -71,14 +100,56 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
+        camera_link:
+          Value: true
+        camera_link_optical:
+          Value: true
+        imu_link:
+          Value: true
+        left_wheel:
+          Value: true
+        link_chassis:
+          Value: true
+        marker_1:
+          Value: true
+        right_wheel:
+          Value: true
+        scan_link:
+          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: false
       Tree:
-        {}
+        link_chassis:
+          camera_link:
+            camera_link_optical:
+              marker_1:
+                {}
+          imu_link:
+            {}
+          left_wheel:
+            {}
+          right_wheel:
+            {}
+          scan_link:
+            {}
       Update Interval: 0
+      Value: true
+    - Class: rviz_default_plugins/Image
+      Enabled: true
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Image
+      Normalize Range: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /marker_image
       Value: true
   Enabled: true
   Global Options:
@@ -121,9 +192,11 @@ Window Geometry:
   Height: 800
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd00000001000000000000019b000002cafc0200000002fb000000100044006900730070006c006100790073010000003b000001af000000c700fffffffb0000000a0056006900650077007301000001f000000115000000a000ffffff0000030f000002ca00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Image:
+    collapsed: false
+  QMainWindow State: 000000ff00000000fd00000001000000000000019b000002cafc0200000003fb000000100044006900730070006c006100790073010000003b00000138000000c700fffffffb0000000a005600690065007700730100000179000000c8000000a000fffffffb0000000a0049006d0061006700650100000247000000be0000001600ffffff0000030f000002ca00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
   Width: 1200
-  X: 183
-  Y: 89
+  X: 564
+  Y: 41

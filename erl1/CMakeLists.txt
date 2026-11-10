@@ -7,6 +7,16 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(custom_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(ament_cmake_python REQUIRED)
+
+ament_python_install_package(scripts)
+
+add_executable(VelocityNode src/error_allignment.cpp)
+ament_target_dependencies(VelocityNode rclcpp std_msgs custom_msgs geometry_msgs)
+
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -18,6 +28,11 @@ install(DIRECTORY
   rviz
   config
   DESTINATION share/${PROJECT_NAME}
+)
+
+install(TARGETS
+  VelocityNode
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 
@@ -32,5 +47,11 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+install(PROGRAMS
+  scripts/marker_display_node.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME RobotController
+)
 
 ament_package()

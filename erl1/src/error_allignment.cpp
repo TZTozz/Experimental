@@ -9,36 +9,38 @@
 
 using std::placeholders::_1;
 
-class Visual: public rclcpp::Node
+class Velocity: public rclcpp::Node
 {
     public:
-        Visual(): Node("visual_node")
+        Velocity(): Node("velocity_node")
         {
-            // Configurable topic
+            // Subscriber to marker_info
             this->declare_parameter<std::string>("marker_info_topic", "marker_info");       //name for declaring, defaiult name
             std::string topic_name;
             this->get_parameter("marker_info_topic", topic_name);
 
-            subscription_ = this->create_subscription<custom_msgs::msg::Box>(topic_name, 10, std::bind(&Visual::info_callback, this, _1));
+            subscription_ = this->create_subscription<custom_msgs::msg::Box>(topic_name, 10, std::bind(&Velocity::info_callback, this, _1));
 
+            // Publisher velocities
             this->declare_parameter<std::string>("velocity_topic", "velocity_info");      
             std::string topic_pub_name;
             this->get_parameter("velocity_topic", topic_pub_name);
 
             publisherVelocities_ = this->create_publisher<geometry_msgs::msg::Twist>(topic_pub_name, 10);
 
+            // Publisher if goal is reached
             this->declare_parameter<std::string>("feedback_topic", "feedback_info");       
             std::string topic_pub_feedback_name;
-            this->get_parameter("velocity_topic", topic_pub_feedback_name);
+            this->get_parameter("feedback_topic", topic_pub_feedback_name);
             
             publisherFeedback_ = this->create_publisher<std_msgs::msg::Bool>(topic_pub_feedback_name, 10);
         }
     
     private:
         void info_callback(const custom_msgs::msg::Box::SharedPtr msg){
-            RCLCPP_INFO(this->get_logger(), "Info marker: %d,\nPose: %d, %d \nSize: %d px", msg->id, msg->ux, msg->uy, msg->d);
-            ux_ = msg->ux;
-            uy_ = msg->uy;
+            RCLCPP_INFO(this->get_logger(), "Info marker: %d,\nPose: %d, %d \nSize: %f px", msg->id, msg->cx, msg->cy, msg->d);
+            ux_ = msg->cx;
+            uy_ = msg->cy;
             d_ = msg->d;
             id_ = msg->id;
             
@@ -56,6 +58,22 @@ class Visual: public rclcpp::Node
             float omega = - k_w * (ux_ - cx);
             float s = f * L / d_;
             float v = k_v * (s_d - s);
+
+            // Goal reached feedback
+            std_msgs::msg::Bool msg_feedback;
+            if ((s_d - s) < 10){
+                v = 0;
+                omega = 0;
+                msg_feedback.data = true;
+                publisherFeedback_->publish(msg_feedback);
+            }
+
+            // Publish velocities
+            msg_velocities.linear.x = v;
+            msg_velocities.angular.z = omega;
+            publisherVelocities_->publish(msg_velocities);
+
+
         }
 
         rclcpp::Subscription<custom_msgs::msg::Box>::SharedPtr subscription_;
@@ -68,7 +86,7 @@ class Visual: public rclcpp::Node
 int main(int argc, char * argv[])
 {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<Visual>());
+    rclcpp::spin(std::make_shared<Velocity>());
     rclcpp::shutdown();
     return 0;
 }
