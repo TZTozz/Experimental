@@ -1,6 +1,6 @@
 ekf_filter_node:
   ros__parameters:
-    frequency: 30.0
+    frequency: 15.0
     sensor_timeout: 0.1
     two_d_mode: true          # planar robot: z, roll and pitch are ignored
     publish_tf: true          # the EKF publishes the transform odom -> link_chassis

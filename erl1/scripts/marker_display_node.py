@@ -105,7 +105,7 @@ class RobotController(Node):
         self.y = self.first_marker.pose.position.y
         self.z = self.first_marker.pose.position.z
         self.orientation = self.first_marker.pose.orientation               # x, y, z, w
-        self.get_logger().info(f'Marker information received.')
+        # self.get_logger().info(f'Marker information received.')
 
         # 2D position of the marker in image frame
         self.x_px = self.k_matrix[0,0]*self.x/self.z + self.k_matrix[0,2]
@@ -120,7 +120,7 @@ class RobotController(Node):
         self.custom_msg.d = float(self.z_depth)
 
         self.publisher_msg.publish(self.custom_msg)
-        self.get_logger().info(f'Published custom message')
+        # self.get_logger().info(f'Published custom message')
             
 
     def target_reached_callback(self, Boolean):
@@ -135,7 +135,7 @@ class RobotController(Node):
         self.image_info = msg
         self.k_matrix =np.array(self.image_info.k).reshape(3,3)
 
-        self.get_logger().info(f'Intrinsic matrix for camera')
+        # self.get_logger().info(f'Intrinsic matrix for camera')
         
 
 
