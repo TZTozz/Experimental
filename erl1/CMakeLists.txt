@@ -14,7 +14,7 @@ find_package(ament_cmake_python REQUIRED)
 
 ament_python_install_package(scripts)
 
-add_executable(VelocityNode src/error_allignment.cpp)
+add_executable(VelocityNode src/velocity_node.cpp)
 ament_target_dependencies(VelocityNode rclcpp std_msgs custom_msgs geometry_msgs)
 
 # uncomment the following section in order to fill in

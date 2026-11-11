@@ -3,7 +3,6 @@
 #include "std_msgs/msg/bool.hpp"
 #include "custom_msgs/msg/box.hpp"
 #include "geometry_msgs/msg/twist.hpp"
-#include <cmath>
 
 #define threshold 2
 
@@ -38,7 +37,7 @@ class Velocity: public rclcpp::Node
     
     private:
         void info_callback(const custom_msgs::msg::Box::SharedPtr msg){
-            RCLCPP_INFO(this->get_logger(), "Info marker: %d,\nPose: %d, %d \nSize: %f px", msg->id, msg->cx, msg->cy, msg->d);
+            RCLCPP_INFO(this->get_logger(), "Info marker: %d,\nPose: %d, %d \nDistance: %f m", msg->id, msg->cx, msg->cy, msg->d);
             ux_ = msg->cx;
             uy_ = msg->cy;
             d_ = msg->d;
@@ -65,6 +64,7 @@ class Velocity: public rclcpp::Node
                 v = 0;
                 omega = 0;
                 msg_feedback.data = true;
+                RCLCPP_INFO(this->get_logger(), "Goal reached");
                 publisherFeedback_->publish(msg_feedback);
             }
 
