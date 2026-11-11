@@ -176,6 +176,14 @@ def generate_launch_description():
         ],
     )
 
+    treasure_finder = Node(
+        package="erl1",
+        executable="TreasureFinder",
+        name="treasure_finder",
+        output='screen',
+        parameters=[{'use_sim_time': True}]
+    )
+
     aruco_node = Node(
         package='aruco_opencv',
         executable='aruco_tracker_autostart',
@@ -202,6 +210,7 @@ def generate_launch_description():
     launchDescriptionObject.add_action(ekf_node)
     launchDescriptionObject.add_action(robot_controller_node)
     launchDescriptionObject.add_action(velocity_node)
+    #launchDescriptionObject.add_action(treasure_finder)
     launchDescriptionObject.add_action(aruco_node)
 
     return launchDescriptionObject

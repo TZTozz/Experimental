@@ -9,7 +9,7 @@ from sensor_msgs.msg import Image
 from sensor_msgs.msg import CameraInfo
 from custom_msgs.msg import Box
 from cv_bridge import CvBridge
-from std_msgs.msg import Bool
+from std_msgs.msg import Int32
 from math import sqrt
 import numpy as np
 import threading
@@ -70,7 +70,7 @@ class RobotController(Node):
 
         self.subscription = self.create_subscription(ArucoDetection, param('aruco_topic'), self.aruco_callback, 10)
         self.subscription_intrinsic = self.create_subscription(CameraInfo, param('camera_info_topic'),self.intrinsic_callback, 10)
-        self.subscription_marker_info = self.create_subscription(Bool, param('target_reached_topic'),self.target_reached_callback, 10)
+        self.subscription_marker_info = self.create_subscription(Int32, param('target_reached_topic'),self.target_reached_callback, 10)
         self.subscription_image = self.create_subscription(Image, param('image_topic'),self.image_callback, 10)
 
         self.publisher_marker = self.create_publisher(Image, param('marker_image_topic'), 10)

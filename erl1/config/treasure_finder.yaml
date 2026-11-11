@@ -1,0 +1,4 @@
+treasure_finder:
+  ros__parameters:
+    velocity_topic: cmd_vel
+    reached_topic: target_reached

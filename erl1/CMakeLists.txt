@@ -54,4 +54,10 @@ install(PROGRAMS
   RENAME RobotController
 )
 
+install(PROGRAMS
+  scripts/treasure_finder.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME TreasureFinder
+)
+
 ament_package()

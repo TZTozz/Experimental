@@ -1,6 +1,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/float32.hpp"
-#include "std_msgs/msg/bool.hpp"
+#include "std_msgs/msg/int32.hpp"
 #include "custom_msgs/msg/box.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 
@@ -14,14 +14,14 @@ class Velocity: public rclcpp::Node
         Velocity(): Node("velocity_node")
         {
             // Subscriber to marker_info
-            this->declare_parameter<std::string>("marker_info_topic", "marker_info");       //name for declaring, defaiult name
+            this->declare_parameter<std::string>("marker_info_topic", "marker_info");       //name for declaring, default name
             std::string topic_name;
             this->get_parameter("marker_info_topic", topic_name);
 
             subscription_ = this->create_subscription<custom_msgs::msg::Box>(topic_name, 10, std::bind(&Velocity::info_callback, this, _1));
 
             // Publisher velocities
-            this->declare_parameter<std::string>("velocity_topic", "velocity_info");      
+            this->declare_parameter<std::string>("velocity_topic", "cmd_vel");      
             std::string topic_pub_name;
             this->get_parameter("velocity_topic", topic_pub_name);
 
@@ -32,7 +32,7 @@ class Velocity: public rclcpp::Node
             std::string topic_pub_feedback_name;
             this->get_parameter("feedback_topic", topic_pub_feedback_name);
             
-            publisherFeedback_ = this->create_publisher<std_msgs::msg::Bool>(topic_pub_feedback_name, 10);
+            publisherFeedback_ = this->create_publisher<std_msgs::msg::Int32>(topic_pub_feedback_name, 10);
         }
     
     private:
@@ -48,8 +48,8 @@ class Velocity: public rclcpp::Node
              
             int cx = 640 / 2;
             int s_d = 166;
-            float k_w = 0.1;
-            float k_v = 0.1;
+            float k_w = 0.01;
+            float k_v = 0.05;
             float f = 381.3611602783203;
             float L = 0.2; //marker real size
             geometry_msgs::msg::Twist msg_velocities;
@@ -60,12 +60,12 @@ class Velocity: public rclcpp::Node
 
 
             // Goal reached feedback
-            std_msgs::msg::Bool msg_feedback;
+            std_msgs::msg::Int32 msg_feedback;
             if ((d_) < 0.5){
                 v = 0;
                 omega = 0;
-                msg_feedback.data = true;
-                RCLCPP_INFO(this->get_logger(), "Goal reached, px marker: %.0f", s);
+                msg_feedback.data = id_;
+                RCLCPP_INFO(this->get_logger(), "Goal %d reached, px marker: %.0f", msg_feedback.data, s);
                 publisherFeedback_->publish(msg_feedback);
             }
 
@@ -79,7 +79,7 @@ class Velocity: public rclcpp::Node
 
         rclcpp::Subscription<custom_msgs::msg::Box>::SharedPtr subscription_;
         rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr publisherVelocities_;
-        rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr publisherFeedback_;
+        rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr publisherFeedback_;
         int ux_, uy_, id_;
         float d_;
 };

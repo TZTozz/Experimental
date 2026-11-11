@@ -1,5 +1,5 @@
 velocity_node:
   ros__parameters:
     marker_info_topic: marker_info
-    velocity_topic: velocity_topic
+    velocity_topic: velocity_info
     feedback_topic: target_reached
