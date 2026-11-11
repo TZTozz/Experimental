@@ -141,7 +141,7 @@ class RobotController(Node):
 
     def image_callback(self, msg):
 
-        self.get_logger().info('Image received.')
+        # self.get_logger().info('Image received.')
 
         # convert ROS Image message to OpenCV image
         img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
@@ -163,7 +163,7 @@ class RobotController(Node):
             
         # Publish the message 
         self.publisher_marker.publish(out_msg)
-        self.get_logger().info(f'Reached Target and drawn circle')
+        # self.get_logger().info(f'Reached Target and drawn circle')
         
 
     

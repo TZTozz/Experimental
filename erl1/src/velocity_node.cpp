@@ -51,20 +51,21 @@ class Velocity: public rclcpp::Node
             float k_w = 0.1;
             float k_v = 0.1;
             float f = 381.3611602783203;
-            int L = 0.2; //marker real size
+            float L = 0.2; //marker real size
             geometry_msgs::msg::Twist msg_velocities;
 
             float omega = - k_w * (ux_ - cx);
             float s = f * L / d_;
             float v = k_v * (s_d - s);
 
+
             // Goal reached feedback
             std_msgs::msg::Bool msg_feedback;
-            if ((s_d - s) < 10){
+            if ((d_) < 0.5){
                 v = 0;
                 omega = 0;
                 msg_feedback.data = true;
-                RCLCPP_INFO(this->get_logger(), "Goal reached");
+                RCLCPP_INFO(this->get_logger(), "Goal reached, px marker: %.0f", s);
                 publisherFeedback_->publish(msg_feedback);
             }
 
@@ -79,7 +80,8 @@ class Velocity: public rclcpp::Node
         rclcpp::Subscription<custom_msgs::msg::Box>::SharedPtr subscription_;
         rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr publisherVelocities_;
         rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr publisherFeedback_;
-        int ux_, uy_, d_, id_, L;
+        int ux_, uy_, id_;
+        float d_;
 };
 
 
