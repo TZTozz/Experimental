@@ -14,6 +14,7 @@ def generate_launch_description():
     # Config files
     controller_params = os.path.join(pkg_erl1, 'config', 'robot_controller.yaml')
     velocity_params = os.path.join(pkg_erl1, 'config', 'velocity_node.yaml')
+    treasure_params = os.path.join(pkg_erl1, 'config', 'treasure_finder.yaml')
 
     aruco_pkg = get_package_share_directory('aruco_opencv')
 
@@ -181,7 +182,10 @@ def generate_launch_description():
         executable="TreasureFinder",
         name="treasure_finder",
         output='screen',
-        parameters=[{'use_sim_time': True}]
+        parameters=[
+            treasure_params,
+            {'use_sim_time': True},
+        ]
     )
 
     aruco_node = Node(
@@ -210,7 +214,7 @@ def generate_launch_description():
     launchDescriptionObject.add_action(ekf_node)
     launchDescriptionObject.add_action(robot_controller_node)
     launchDescriptionObject.add_action(velocity_node)
-    #launchDescriptionObject.add_action(treasure_finder)
+    launchDescriptionObject.add_action(treasure_finder)
     launchDescriptionObject.add_action(aruco_node)
 
     return launchDescriptionObject
