@@ -65,6 +65,7 @@ class RobotController(Node):
         self.z = 0.0
         self.first_marker = []  
         self.has_marker = False   
+        self.marker_array = []
 
 
         self.subscription = self.create_subscription(ArucoDetection, param('aruco_topic'), self.aruco_callback, 10)
@@ -87,48 +88,54 @@ class RobotController(Node):
         # No marker info
         # No intrinsic matrix received
         if (len(self.marker_info.markers) == 0) or self.k_matrix is None:
+            self.radius = 0.0
+            self.x_px = 0.0
+            self.y_px = 0.0
+            self.z_depth = 0.0
             return
 
         # Need this because we compare id to make sure we are at the target
         self.first_marker = self.marker_info.markers[0]
         self.marker_id = self.first_marker.marker_id 
-
-        if self.notify==False :
-            self.radius = 0.0
-            self.x_px = 0.0
-            self.y_px = 0.0
-            self.z_depth = 0.0
+        #self.get_logger().info(f"I see {self.marker_id}")
+        
+        if self.marker_id in self.marker_array or self.marker_id == 0 or( self.marker_array and self.marker_id != self.marker_array[-1] + 1):
+            #self.get_logger().info(f"I ignore {self.marker_id}")
             self.has_marker = False
             return
+        else:
+            self.get_logger().info(f"{self.marker_array}")
+            self.has_marker = True     
 
-        self.has_marker = True     
+            # 3d position of the marker in camera frame               
+            self.x = self.first_marker.pose.position.x
+            self.y = self.first_marker.pose.position.y
+            self.z = self.first_marker.pose.position.z
+            self.orientation = self.first_marker.pose.orientation               # x, y, z, w
+            # self.get_logger().info(f'Marker information received.')
 
-        # 3d position of the marker in camera frame               
-        self.x = self.first_marker.pose.position.x
-        self.y = self.first_marker.pose.position.y
-        self.z = self.first_marker.pose.position.z
-        self.orientation = self.first_marker.pose.orientation               # x, y, z, w
-        # self.get_logger().info(f'Marker information received.')
+            # 2D position of the marker in image frame
+            self.x_px = self.k_matrix[0,0]*self.x/self.z + self.k_matrix[0,2]
+            self.y_px = self.k_matrix[1,1]*self.y/self.z + self.k_matrix[1,2]
+            self.radius = (self.marker_size*sqrt(2)/2)*self.k_matrix[0,0]/self.z
+            self.z_depth = self.z
+        
+            # Info needed for second part of assignment 
+            self.custom_msg.id = int(self.marker_id)
+            self.custom_msg.cx = int(self.x_px)
+            self.custom_msg.cy = int(self.y_px)
+            self.custom_msg.d = float(self.z_depth)
 
-        # 2D position of the marker in image frame
-        self.x_px = self.k_matrix[0,0]*self.x/self.z + self.k_matrix[0,2]
-        self.y_px = self.k_matrix[1,1]*self.y/self.z + self.k_matrix[1,2]
-        self.radius = (self.marker_size*sqrt(2)/2)*self.k_matrix[0,0]/self.z
-        self.z_depth = self.z
-    
-        # Info needed for second part of assignment 
-        self.custom_msg.id = int(self.marker_id)
-        self.custom_msg.cx = int(self.x_px)
-        self.custom_msg.cy = int(self.y_px)
-        self.custom_msg.d = float(self.z_depth)
-
-        self.publisher_msg.publish(self.custom_msg)
-        # self.get_logger().info(f'Published custom message')
+            self.publisher_msg.publish(self.custom_msg)
+            # self.get_logger().info(f'Published custom message')
             
 
     def target_reached_callback(self, Int32):
-        if Int32.data== marker_id:
+        if Int32.data == self.marker_id:
             self.notify = True
+            self.marker_array.append(self.marker_id)
+            self.get_logger().info(f'marker appended')
+            self.get_logger().info(f"{self.marker_array}")
         else:
             self.notify = False
 
@@ -156,7 +163,7 @@ class RobotController(Node):
         marker_cy = int(self.y_px)
         r = int(self.radius)
                 
-        if self.notify and self.has_marker:   
+        if self.notify==False and self.has_marker:   
             #Drawing a circle around the marker and displaying the marker id on the image
             cv2.circle(img, (marker_cx,marker_cy ), r, (0, 0, 255), 2)
             cv2.putText(img,f"id {self.marker_id}",(marker_cx - r, marker_cy - r - 10),cv2.FONT_HERSHEY_SIMPLEX,1.0,(0, 0, 255),3,)
