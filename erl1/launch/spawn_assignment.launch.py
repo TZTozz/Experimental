@@ -63,9 +63,6 @@ def generate_launch_description():
         executable='rviz2',
         arguments=['-d', os.path.join(pkg_erl1, 'rviz', 'urdf.rviz')],
         condition=IfCondition(LaunchConfiguration('rviz')),
-        parameters=[
-            {'use_sim_time': True},
-        ]
     )
 
     # Spawn the URDF model using the `/world/<world_name>/create` service
