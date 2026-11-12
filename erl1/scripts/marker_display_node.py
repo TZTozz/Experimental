@@ -5,7 +5,7 @@ from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 from aruco_opencv_msgs.msg import MarkerPose
 from aruco_opencv_msgs.msg import ArucoDetection
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import CompressedImage
 from sensor_msgs.msg import CameraInfo
 from custom_msgs.msg import Box
 from cv_bridge import CvBridge
@@ -40,7 +40,7 @@ class RobotController(Node):
         # Instead of just declaring, we create the empty object instance here.
         self.marker_info = ArucoDetection()
         self.image_info = CameraInfo()
-        self.raw_image  = Image()
+        self.raw_image  = CompressedImage()
         self.custom_msg = Box()
         self.bridge = CvBridge()
 
@@ -71,9 +71,9 @@ class RobotController(Node):
         self.subscription = self.create_subscription(ArucoDetection, param('aruco_topic'), self.aruco_callback, 10)
         self.subscription_intrinsic = self.create_subscription(CameraInfo, param('camera_info_topic'),self.intrinsic_callback, 10)
         self.subscription_marker_info = self.create_subscription(Int32, param('target_reached_topic'),self.target_reached_callback, 10)
-        self.subscription_image = self.create_subscription(Image, param('image_topic'),self.image_callback, 10)
+        self.subscription_image = self.create_subscription(CompressedImage, param('image_topic'),self.image_callback, 10)
 
-        self.publisher_marker = self.create_publisher(Image, param('marker_image_topic'), 10)
+        self.publisher_marker = self.create_publisher(CompressedImage, param('marker_image_topic'), 10)
         self.publisher_msg = self.create_publisher(Box, param('custom_msg_topic'), 10)
 
         self.get_logger().info('Robot Controller Node has been started.')
@@ -154,7 +154,8 @@ class RobotController(Node):
         # self.get_logger().info('Image received.')
 
         # convert ROS Image message to OpenCV image
-        img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        #img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        img = self.bridge.compressed_imgmsg_to_cv2(msg, desired_encoding='bgr8')
 
         # Publishing on the marker_image topic
         # Ever time the robot is near the marker then we will publish the red circle and the marker id on the image
@@ -168,7 +169,8 @@ class RobotController(Node):
             cv2.circle(img, (marker_cx,marker_cy ), r, (0, 0, 255), 2)
             cv2.putText(img,f"id {self.marker_id}",(marker_cx - r, marker_cy - r - 10),cv2.FONT_HERSHEY_SIMPLEX,1.0,(0, 0, 255),3,)
 
-        out_msg = self.bridge.cv2_to_imgmsg(img, encoding='bgr8')
+        #out_msg = self.bridge.cv2_to_imgmsg(img, encoding='bgr8')
+        out_msg = self.bridge.cv2_to_compressed_imgmsg(img, dst_format='jpg')
         out_msg.header = msg.header   
             
         # Publish the message 

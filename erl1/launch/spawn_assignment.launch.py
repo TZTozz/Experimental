@@ -20,10 +20,10 @@ def generate_launch_description():
 
     aruco_launch = os.path.join(aruco_pkg,'config', 'aruco_tracker.yaml')
 
-    gazebo_models_path, ignore_last_dir = os.path.split(pkg_erl1)
+    #gazebo_models_path, ignore_last_dir = os.path.split(pkg_erl1)
     # lets Gazebo find package://erl1/... (e.g. the meshes)
-    gz_path = os.environ.get("GZ_SIM_RESOURCE_PATH", "")
-    os.environ["GZ_SIM_RESOURCE_PATH"] = gz_path + os.pathsep + gazebo_models_path
+    #gz_path = os.environ.get("GZ_SIM_RESOURCE_PATH", "")
+    #os.environ["GZ_SIM_RESOURCE_PATH"] = gz_path + os.pathsep + gazebo_models_path
 
     rviz_launch_arg = DeclareLaunchArgument(
         'rviz', default_value='true',
@@ -79,7 +79,6 @@ def generate_launch_description():
         ],
         output="screen",
         parameters=[
-            {'use_sim_time': True},
         ]
     )
 
@@ -89,8 +88,7 @@ def generate_launch_description():
         name='robot_state_publisher',
         output='screen',
         parameters=[
-            {'robot_description': Command(['xacro', ' ', urdf_file_path]),
-             'use_sim_time': True},
+            {'robot_description': Command(['xacro', ' ', urdf_file_path])},
         ],
         remappings=[
             ('/tf', 'tf'),
@@ -101,7 +99,6 @@ def generate_launch_description():
     joint_state_publisher_gui_node = Node(
         package='joint_state_publisher_gui',
         executable='joint_state_publisher_gui',
-        parameters=[{'use_sim_time': True}],
     )
 
     gz_image_bridge_node = Node(
@@ -124,7 +121,6 @@ def generate_launch_description():
         output='screen',
         parameters=[
             os.path.join(pkg_erl1, 'config', 'ekf.yaml'),
-            {'use_sim_time': True},
             ]
     )
 
@@ -151,7 +147,6 @@ def generate_launch_description():
         ],
         output="screen",
         parameters=[
-            {'use_sim_time': True},
         ]
     )
 
@@ -162,7 +157,6 @@ def generate_launch_description():
         output='screen',
         parameters=[
             controller_params,
-            {'use_sim_time': True},
         ],
     )
 
@@ -173,7 +167,6 @@ def generate_launch_description():
         output='screen',
         parameters=[
             velocity_params,
-            {'use_sim_time': True},
         ],
     )
 
@@ -184,7 +177,6 @@ def generate_launch_description():
         output='screen',
         parameters=[
             treasure_params,
-            {'use_sim_time': True},
         ]
     )
 
@@ -195,7 +187,6 @@ def generate_launch_description():
         output='screen',
         parameters=[
             aruco_launch,
-            {'use_sim_time': True},
         ],
     )
 
@@ -206,7 +197,7 @@ def generate_launch_description():
     launchDescriptionObject.add_action(model_arg)
     #launchDescriptionObject.add_action(world_launch)
     launchDescriptionObject.add_action(rviz_node)
-    launchDescriptionObject.add_action(spawn_urdf_node)
+    #launchDescriptionObject.add_action(spawn_urdf_node)
     launchDescriptionObject.add_action(robot_state_publisher_node)
     #launchDescriptionObject.add_action(joint_state_publisher_gui_node)
     #launchDescriptionObject.add_action(gz_bridge_node)
