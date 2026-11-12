@@ -149,7 +149,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /marker_image
+        Value: /marker_image/compressed
       Value: true
   Enabled: true
   Global Options:

@@ -3,8 +3,8 @@ robot_controller:
     aruco_topic: aruco_detections
     camera_info_topic: camera/camera_info
     target_reached_topic: target_reached
-    image_topic: camera/image
-    marker_image_topic: marker_image
+    image_topic: camera/image/compressed
+    marker_image_topic: marker_image/compressed
     custom_msg_topic: marker_info
     marker_size: 0.2
     use_sim_time: true

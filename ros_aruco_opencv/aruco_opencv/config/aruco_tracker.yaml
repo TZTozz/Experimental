@@ -1,6 +1,6 @@
 /**:
   ros__parameters:
-    cam_base_topic: /rosbot_2/rosbot_2/camera/rgb/image_raw
+    cam_base_topic: /camera/image
     output_frame: ''
 
     marker_dict: ARUCO_ORIGINAL
