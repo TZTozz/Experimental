@@ -49,7 +49,7 @@ class Velocity: public rclcpp::Node
             int cx = 640 / 2;
             int s_d = 166;
             float k_w = 0.01;
-            float k_v = 0.05;
+            float k_v = 0.02;
             float f = 381.3611602783203;
             float L = 0.2; //marker real size
             geometry_msgs::msg::Twist msg_velocities;

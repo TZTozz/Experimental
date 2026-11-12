@@ -114,7 +114,7 @@ class TreasureFinder(Node):
             twist = Twist()
 
             if abs(err) > self.rotation_error_threshold:
-                twist.angular.z = max(min(1.5 * err, 0.8), -0.8)
+                twist.angular.z = max(min(0.5 * err, 0.02), -0.02)
                 self.cmd_pub.publish(twist)
             else:
                 self.get_logger().info('Rotation complete. Resetting target_reached and moving ahead.')
@@ -135,7 +135,7 @@ class TreasureFinder(Node):
             )
             if no_recent_servo:
                 twist = Twist()
-                twist.linear.x = 0.3
+                twist.linear.x = 0.02
                 twist.angular.z = 0.0
                 self.cmd_pub.publish(twist)
 
