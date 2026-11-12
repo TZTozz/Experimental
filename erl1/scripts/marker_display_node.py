@@ -32,7 +32,6 @@ class RobotController(Node):
         self.declare_parameter('marker_image_topic', 'marker_image')
         self.declare_parameter('custom_msg_topic', 'custom_msg')
         self.declare_parameter('marker_size', 0.2)
-        self.declare_parameter('test_mode', True)
 
         def param(name):
             return self.get_parameter(name).value
@@ -51,7 +50,7 @@ class RobotController(Node):
         self.pose = 0.0
         self.orientation = 0.0
         self.k_matrix = None
-        self.notify = param('test_mode')  
+        self.notify = False
         self.marker_size = param('marker_size')
 
         # 2D position of the marker in image frame
@@ -88,6 +87,13 @@ class RobotController(Node):
         # No marker info
         # No intrinsic matrix received
         if (len(self.marker_info.markers) == 0) or self.k_matrix is None:
+            return
+
+        # Need this because we compare id to make sure we are at the target
+        self.first_marker = self.marker_info.markers[0]
+        self.marker_id = self.first_marker.marker_id 
+
+        if self.notify==False :
             self.radius = 0.0
             self.x_px = 0.0
             self.y_px = 0.0
@@ -95,10 +101,7 @@ class RobotController(Node):
             self.has_marker = False
             return
 
-        self.has_marker = True
-        # If marker detected, then we will extract the information of the first marker in the list
-        self.first_marker = self.marker_info.markers[0]
-        self.marker_id = self.first_marker.marker_id       
+        self.has_marker = True     
 
         # 3d position of the marker in camera frame               
         self.x = self.first_marker.pose.position.x
@@ -123,8 +126,8 @@ class RobotController(Node):
         # self.get_logger().info(f'Published custom message')
             
 
-    def target_reached_callback(self, Boolean):
-        if Boolean.data== True:
+    def target_reached_callback(self, Int32):
+        if Int32.data== marker_id:
             self.notify = True
         else:
             self.notify = False
