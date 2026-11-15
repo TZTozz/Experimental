@@ -83,8 +83,7 @@ class RobotController(Node):
 
         self.marker_info = msg
 
-        #Safety check
-        # If no marker detected (notified from a Boolean topic)
+        # Safety check
         # No marker info
         # No intrinsic matrix received
         if (len(self.marker_info.markers) == 0) or self.k_matrix is None:
@@ -99,11 +98,13 @@ class RobotController(Node):
         self.marker_id = self.first_marker.marker_id 
         #self.get_logger().info(f"I see {self.marker_id}")
         
+        # Checking if we have seen the marker before and whether the next marker is the one we want (we have to go in sequence)
         if self.marker_id in self.marker_array or self.marker_id == 0 or( self.marker_array and self.marker_id != self.marker_array[-1] + 1):
             #self.get_logger().info(f"I ignore {self.marker_id}")
             self.has_marker = False
             return
         else:
+            # so we send to velocity node if we use the correct marker
             self.get_logger().info(f"{self.marker_array}")
             self.has_marker = True     
 
@@ -120,7 +121,7 @@ class RobotController(Node):
             self.radius = (self.marker_size*sqrt(2)/2)*self.k_matrix[0,0]/self.z
             self.z_depth = self.z
         
-            # Info needed for second part of assignment 
+            # Info needed for velocity node 
             self.custom_msg.id = int(self.marker_id)
             self.custom_msg.cx = int(self.x_px)
             self.custom_msg.cy = int(self.y_px)
@@ -131,6 +132,8 @@ class RobotController(Node):
             
 
     def target_reached_callback(self, Int32):
+        # Get the id in return and add it to the marker_array to avoid reseeing it
+
         if Int32.data == self.marker_id:
             self.notify = True
             self.marker_array.append(self.marker_id)
@@ -157,15 +160,14 @@ class RobotController(Node):
         #img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
         img = self.bridge.compressed_imgmsg_to_cv2(msg, desired_encoding='bgr8')
 
-        # Publishing on the marker_image topic
-        # Ever time the robot is near the marker then we will publish the red circle and the marker id on the image
-        # Will be visualized in rviz2
         marker_cx = int(self.x_px)
         marker_cy = int(self.y_px)
         r = int(self.radius)
-                
+
+        # Publishing on the marker_image topic
+        # Publish the red circle, with the marker id on the image, until we are in reach of the marker 
+        # Will be visualized in rviz2                
         if self.notify==False and self.has_marker:   
-            #Drawing a circle around the marker and displaying the marker id on the image
             cv2.circle(img, (marker_cx,marker_cy ), r, (0, 0, 255), 2)
             cv2.putText(img,f"id {self.marker_id}",(marker_cx - r, marker_cy - r - 10),cv2.FONT_HERSHEY_SIMPLEX,1.0,(0, 0, 255),3,)
 
@@ -173,7 +175,7 @@ class RobotController(Node):
         out_msg = self.bridge.cv2_to_compressed_imgmsg(img, dst_format='jpg')
         out_msg.header = msg.header   
             
-        # Publish the message 
+        # Publish the message continuosly 
         self.publisher_marker.publish(out_msg)
         self.get_logger().info(f'Reached Target and drawn circle')
         

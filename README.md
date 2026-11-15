@@ -4,7 +4,7 @@ The assignment involves programming a robot to take part in a treasure hunt.
 There are four ArUco markers to reach in order; the robot must stop approximately 50 cm from each marker; the marker’s ID will provide the instruction to continue along the route.
 
 <div align="center">
-  <img src="readme_img/ArUco_map.png" width="60%"/>
+  <img src="readme_img/ArUco_map.png" width="50%"/>
   <br>
   <p>Figure 1: map showing ArUco's positions</p>
 </div>
@@ -32,10 +32,17 @@ Both are organised in the same way, with three packages:
 The programme is divided into three nodes. The following names of the topics used in the README reflect the remapped names (as shown in the various yaml files)
 
 ### 1. marker_image (.py)
+It is responsible for sensing the environment. It receives images from the `/camera/camera_info` and detects markers using the `/aruco_detections` topic.
 
-It is responsible for sensing the environment. It receives images from the `/camera` and detects markers using the `/aruco_detections` topic.
+The target is visually seen with a red circle and the marker's ID. This image is published on the `/marker_image` topic. To ensure that the robot follows the correct sequence of the markers, it analyses the marker IDs received from the `/target_reached` topic. 
 
-To visually highlight the target with a bounding circle on the debug image published on the `/marker_image` topic and to ensure the correct sequence of the ‘order’ of the markers. It analyses their IDs and, if they match the correct marker, it processes it. To know which target number it needs to follow, it subscribes to the `/target_reached` topic.
+The information from `/target_reached` provides two critical checks:  
+- First: it appends the marker_array parameter. This ensures that if the camera detects the marker again, it will ignore it. 
+- Second: if the robot reaches the marker and it matches the current seen marker, it stops publishing the red circle on `/marker_image`. 
+
+How the `/custom_msg` is validated before sending to the velocity node:
+- A check is required in the case of duplicate-detected markers, if no marker is detected, or if the detected marker ID is out of the sequential numerical order. 
+- If all the above are false, the custom message is compiled.
 
 It calculates the marker’s apparent dimensions in pixels considering radius $r$, extracts its 3D coordinates (x, y, z) and converting them to the corresponding 2D values by projecting the coordinates onto the image plane:
 
@@ -49,7 +56,7 @@ where:
 - **$f_x, f_y$**: focal lengths in pixels ($K_{0,0}$ and $K_{1,1}$)
 - **$c_x, c_y$**: optical center coordinates in pixels ($K_{0,2}$ and $K_{1,2}$)
 
-Finally, it sends a custom message on the **/marker_info** topic containing the marker’s 2D coordinates (`cx`, `cy`), the depth `d` ($Z$), and its ID.
+Finally, it sends a custom message on the **/custom_msg** topic containing the marker’s 2D coordinates (`cx`, `cy`), the depth `d` ($Z$), and its ID.
 
 
 ### 2. velocity (.cpp)
@@ -67,7 +74,7 @@ These values are published to the `/velocity_info` topic; once the correct dista
     $$s_d = \frac{f \cdot L}{d}$$
 
     * **$s_d$**: desired size of the marker’s side in the image (166 px)
-    * **$f$**: focal length of the camera (px, derived from the `camera_info` calibration parameters)
+    * **$f$**: focal length of the camera (px, derived from the `camera/camera_info` calibration parameters)
     * **$L$**: actual physical dimension of the marker’s side (m)
     * **$d$**: desired distance to maintain from the marker (about 0.5 m)
 
@@ -133,17 +140,35 @@ sudo apt install ros-jazzy-rviz2
 # Running the simulation
 
 Clone the repository (selecting the desired branch) inside the `src` folder of your ROS 2 workspace:
-```
+```bash
 git clone -b main https://github.com/TZTozz/Experimental.git
 ```
 
 Move to the root of the workspace, build and source the environmet:
-```
+```bash 
 colcon build
 source install/setup.bash
 ```
 
 Using the launch file to run the simulation:
+```bash
+ros2 launch erl1 spawn_assignment.launch.py 
 ```
+
+# Running using the Real Robot
+
+Clone the repository (selecting the desired branch) inside the `src` folder of your ROS 2 workspace:
+```bash
+git clone -b Lab_setup https://github.com/TZTozz/Experimental.git
+```
+
+Move to the root of the workspace, build and source the environmet:
+```bash 
+colcon build
+source install/setup.bash
+```
+
+Using the launch file to run the simulation:
+```bash
 ros2 launch erl1 spawn_assignment.launch.py 
 ```
