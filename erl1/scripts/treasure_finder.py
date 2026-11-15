@@ -9,9 +9,19 @@ from geometry_msgs.msg import Twist
 from custom_msgs.msg import Box
 
 def normalize_angle(angle):
+    """
+    Normalizes an angle to always fall within the range [-pi, pi].
+    This prevents rotational math errors when angles wrap around the 360-degree mark.
+    """
     return math.atan2(math.sin(angle), math.cos(angle))
 
 class TreasureFinder(Node):
+    """
+    A ROS 2 node that moves the robot.
+    1. During 'SERVOING', it passes through commands from the visual servoing node.
+    2. If no marker is seen, it drives the robot straight.
+    3. When a marker is reached, it takes over to execute closed-loop rotations.
+    """
     def __init__(self):
         super().__init__('treasure_finder')
 
@@ -43,17 +53,15 @@ class TreasureFinder(Node):
             Box, marker_info_topic, self.marker_info_callback, 10)
 
         # State tracking
-        self.processed_markers = set()
-        self.current_seen_id = -1
-        self.last_valid_vel_time = None
-        self.current_yaw = 0.0
-        self.target_yaw = 0.0
-        self.state = 'SERVOING'  # States: SERVOING, ROTATING, STOPPED
-        self.rotation_error_threshold = 0.04
-
-        # Control loop at 10 Hz
+        self.processed_markers = set()         # Remembers IDs we have already acted upon
+        self.current_seen_id = -1              # The ID currently in the camera's view
+        self.last_valid_vel_time = None        # Timestamp of the last visual servoing command
+        self.current_yaw = 0.0                 # Robot's current yaw in radians
+        self.target_yaw = 0.0                  # The yaw the robot is trying to rotate to
+        self.state = 'SERVOING'                # Allowed States: SERVOING, ROTATING, STOPPED
+        self.rotation_error_threshold = 0.04   # How close to the target angle is "good enough" (radians)
+        
         self.timer = self.create_timer(0.1, self.control_loop)
-        self.get_logger().info('Treasure Finder started in SERVOING mode.')
 
     def marker_info_callback(self, msg):
         self.current_seen_id = msg.id
@@ -70,6 +78,7 @@ class TreasureFinder(Node):
         self.cmd_pub.publish(msg)
 
     def odom_callback(self, msg):
+        """ Converts the EKF Odometry quaternion into a readable Yaw angle. """
         q = msg.pose.pose.orientation
         # Assignment quaternion-to-yaw formula
         self.current_yaw = math.atan2(
@@ -78,6 +87,10 @@ class TreasureFinder(Node):
         )
 
     def target_callback(self, msg):
+        """ 
+        Triggered when the visual servoing node signals it has reached a marker (166px).
+        It calculates the new target angle and switches the state to ROTATING.
+        """
         marker_id = msg.data
 
         # Ignore reset messages (0) or already processed markers
@@ -86,14 +99,13 @@ class TreasureFinder(Node):
 
         self.processed_markers.add(marker_id)
 
+        # End of Hunt condition
         if marker_id == 4:
             self.state = 'STOPPED'
             self.stop_robot()
-            self.get_logger().info('Marker 4 reached! Treasure found! Hunt is over.')
             return
 
-        self.get_logger().info(f'Marker {marker_id} reached! Executing rotation instruction.')
-
+        # Calculate the destination angle based on the specific marker's instruction
         if marker_id == 1:
             self.target_yaw = normalize_angle(self.current_yaw - (math.pi / 2.0))  # Turn right 90 deg
             self.state = 'ROTATING'
@@ -117,7 +129,7 @@ class TreasureFinder(Node):
                 twist.angular.z = max(min(1.5 * err, 0.8), -0.8)
                 self.cmd_pub.publish(twist)
             else:
-                self.get_logger().info('Rotation complete. Resetting target_reached and moving ahead.')
+                #self.get_logger().info('Rotation complete. Resetting target_reached and moving ahead.')
                 self.stop_robot()
                 reset_msg = Int32()
                 reset_msg.data = 0
@@ -134,18 +146,22 @@ class TreasureFinder(Node):
                 (now - self.last_valid_vel_time).nanoseconds > 500_000_000
             )
             if no_recent_servo:
+                # If we haven't received a valid visual servoing command in the last 0.5 seconds,
+                # it means the camera doesn't see a new marker. Drive straight to find one.
                 twist = Twist()
                 twist.linear.x = 0.3
                 twist.angular.z = 0.0
                 self.cmd_pub.publish(twist)
 
     def stop_robot(self):
+        """ Helper function to forcefully stop all motors. """
         twist = Twist()
         twist.linear.x = 0.0
         twist.angular.z = 0.0
         self.cmd_pub.publish(twist)
 
 def main(args=None):
+    """ Standard ROS 2 node entry point and execution loop. """
     rclpy.init(args=args)
     node = TreasureFinder()
     try:

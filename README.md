@@ -97,15 +97,17 @@ These values are published to the `/velocity_info` topic; once the correct dista
 
 ### 3. treasure_finder (.py)
 
-This is the node that coordinates the robot’s actual movement.
+This node coordinates the robot’s actual movement.
 
-It estimates the robot’s actual orientation (yaw) by subscribing to the `/odometry` topic and converting the quaternion $(x, y, z, w)$:
+It subscribes to the visual servoing commands on `/velocity_info`, the robot's rotation from the EKF output on `/odometry/filtered`, the current marker data on `/marker_info`, and the triggers on `/target_reached`. 
+
+It estimates the robot’s true orientation (yaw) by converting the odometry quaternion $(x, y, z, w)$:
 
 $$\psi = \text{atan2}\left(2(w z + x y), \; 1 - 2(y^2 + z^2)\right)$$
 
-Taking into account the required velocities published on the `/velocity_info` topic, the instruction to follow through the ID published on `/target_reached`, and the currently seen ID from `/marker_info` (to ignore markers already visited), it implements a state machine capable of determining the robot’s movement by publishing the commands on `/cmd_vel`.
+During normal operation, the node passes the visual servoing commands from `/velocity_info` directly to the robot's wheels via `/cmd_vel`. If no valid marker is seen, it acts as a safety fallback and drives the robot straight ahead to search for one. 
 
-Once the marker has been reached, its ID is published on the `/target_reached` topic; it can then extract this ID to execute the correct instruction:
+Once the vision part signals that a target has been reached on `/target_reached`, the node extracts the marker ID, ignores commands for any markers it has already visited, and executes the correct rotation:
 
 | Marker ID | Command |
 | :---: | :--- |
@@ -115,9 +117,7 @@ Once the marker has been reached, its ID is published on the `/target_reached` t
 | **4** | **Stop**: the hunt is over |
 
 #### State machine
-The node cycles between three states (`SERVOING`, `ROTATING`, `STOPPED`). During `SERVOING`, it follows `/velocity_info` commands or drives straight ahead ($0.3\text{ m/s}$) if no new marker is detected. Once a target is reached, it switches to `ROTATING` to complete the maneuver using `/odometry`; after the rotation is complete, it publishes **`id = 0`** on `/target_reached` to reset the state and returns to `SERVOING`.
-
----
+The node cycles between three states (`SERVOING`, `ROTATING`, `STOPPED`). During `SERVOING`, it forwards `/velocity_info` commands or drives straight. Once a new target is reached, it takes over control and switches to `ROTATING` to complete the closed-loop maneuver using `/odometry/filtered`. After the error drops below a threshold and the rotation is complete, it publishes **`id = 0`** to `/target_reached` to reset the vision part, and returns to `SERVOING`.
 
 # Requirements
 Operating System: Ubuntu (suggested: 24.04)
