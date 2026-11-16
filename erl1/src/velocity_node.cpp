@@ -33,6 +33,13 @@ class Velocity: public rclcpp::Node
             this->get_parameter("feedback_topic", topic_pub_feedback_name);
             
             publisherFeedback_ = this->create_publisher<std_msgs::msg::Int32>(topic_pub_feedback_name, 10);
+
+            // Usefull parameters 
+            this->declare_parameter<double>("marker_size", 0.2);
+            this->declare_parameter<double>("focal_lenght", 381.3611602783203);
+
+            L = this->get_parameter("marker_size").as_double();
+            f = this->get_parameter("focal_lenght").as_double();
         }
     
     private:
@@ -44,24 +51,22 @@ class Velocity: public rclcpp::Node
             id_ = msg->id;
             
             // velocity calculation
-            // Width: 640
+            // Width of the image: 640 px
              
-            int cx = 640 / 2;
-            int s_d = 166;
-            float k_w = 0.01;
-            float k_v = 0.05;
-            float f = 381.3611602783203;
-            float L = 0.2; //marker real size
+            int cx = 640 / 2;       // Finds the center
+            int s_d = 166;          // Desidered size of the marker in the image
+            float k_w = 0.01;       // Proportional gain for angular velocity
+            float k_v = 0.05;       // Proportional gain for linear velocity
             geometry_msgs::msg::Twist msg_velocities;
 
-            float omega = - k_w * (ux_ - cx);
-            float s = f * L / d_;
-            float v = k_v * (s_d - s);
+            float omega = - k_w * (ux_ - cx);   // Angular velocity
+            float s = f * L / d_;               // Size of the marker in the image
+            float v = k_v * (s_d - s);          // Linear velocity
 
 
             // Goal reached feedback
             std_msgs::msg::Int32 msg_feedback;
-            if ((d_) < 0.5){
+            if ((d_) < 0.5){        // If the distance is below 0.5m
                 v = 0;
                 omega = 0;
                 msg_feedback.data = id_;
@@ -82,6 +87,7 @@ class Velocity: public rclcpp::Node
         rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr publisherFeedback_;
         int ux_, uy_, id_;
         float d_;
+        double L, f;
 };
 
 

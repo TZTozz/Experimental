@@ -3,3 +3,5 @@ velocity_node:
     marker_info_topic: marker_info
     velocity_topic: velocity_info
     feedback_topic: target_reached
+    marker_size: 0.2
+    focal_lenght: 381.3611602783203
