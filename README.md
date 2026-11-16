@@ -1,33 +1,36 @@
-# ArUco Treasure Hunt
+ # ArUco Treasure Hunt
 
 The assignment involves programming a robot to take part in a treasure hunt.
+
 There are four ArUco markers to reach in order; the robot must stop approximately 50 cm from each marker; the marker’s ID will provide the instruction to continue along the route.
 
 <div align="center">
-  <img src="readme_img/ArUco_map.png" width="50%"/>
-  <br>
-  <p>Figure 1: map showing ArUco's positions</p>
+    <img src="readme_img/ArUco_map.png" width="40%"/>
+    <br>
+    <p>Figure 1: map showing ArUco's positions</p>
 </div>
 
 *(\*) The robot is initially positioned so that it faces marker **1** directly.*
 
 
---- 
+---
 
 # Repository structure
 
 There are only two branches to consider for this assignment
-* main: implements the simulation in RViz
-* lab_setup: implements the code for connecting to the real robot
+* **main**: implements the simulation in RViz
+* **lab_setup**: implements the code for connecting to the real robot 
 
 Both are organised in the same way, with three packages:
-* custom_msgs: containing the custom message 
-* erl1: the actual project folder, containing the models, configuration files, launch file and nodes
-* ros_aruco_opencv: required to use Aruco
+* `custom_msgs`: containing the custom message
+* `erl1`: the actual project folder, containing the models, configuration files, launch file and nodes
+* `ros_aruco_opencv`: required to use Aruco 
 
 ---
 
-# Nodes
+# Architectures
+
+## Nodes
 
 The programme is divided into three nodes. The following names of the topics used in the README reflect the remapped names (as shown in the various yaml files)
 
@@ -61,39 +64,40 @@ Finally, it sends a custom message on the **/custom_msg** topic containing the m
 
 ### 2. velocity (.cpp)
 
-This is the node responsible for calculating the Visual Servoing. 
+This is the node responsible for calculating the Visual Servoing.
 
-By subscribing to the `/marker_info` topic, it retrieves the data required to calculate the correct angular and linear velocities needed to centre the marker and reach the desired proximity.
+By subscribing to the `/marker_info` topic, it **extracts the marker's `id`, 2D pixel center (`cx`, `cy`), and distance `d`** to calculate the correct angular and linear velocities needed to center the marker and reach the desired proximity.
 
-These values are published to the `/velocity_info` topic; once the correct distance has been reached (hence the robot is at least 50 cm away from the marker), the node publishes the marker_id number of the marker reached to the `/target_reached` topic.
+Before publishing, the node checks the proximity condition ($d < 0.5\text{ m}$): if the target distance has been reached, it forces both velocities to zero ($v = 0, \omega = 0$) and publishes the reached `id` to the `/target_reached` topic; otherwise, it sends the computed commands to the `/velocity_info` topic.
 
 #### The formulas used to compute the error are the following:
 
-* To determine the desired marker size
+* To determine the desired marker size 
 
     $$s_d = \frac{f \cdot L}{d}$$
 
     * **$s_d$**: desired size of the marker’s side in the image (166 px)
-    * **$f$**: focal length of the camera (px, derived from the `camera/camera_info` calibration parameters)
+    * **$f$**: focal length of the camera (px, derived from the `camera_info` calibration parameters)
     * **$L$**: actual physical dimension of the marker’s side (m)
-    * **$d$**: desired distance to maintain from the marker (about 0.5 m)
+    * **$d$**: desired distance to maintain from the marker (about 0.5 m) 
 
-* To determine the angular velocity
+* To determine the angular velocity 
+
     $$\omega = -k_\omega \cdot (u - c_x)$$
 
     * **$\omega$**: angular velocity commanded to the robot ($\text{rad/s}$)
     * **$k_\omega$**: proportional gain for angular control
     * **$u$**: horizontal coordinate (px) of the centre of the detected marker
-    * **$c_x$**: horizontal coordinate (px) of the centre of the image
+    * **$c_x$**: horizontal coordinate (px) of the centre of the image 
 
-* To determine the linear velocity
+* To determine the linear velocity 
 
     $$v = k_v \cdot (s_d - s)$$
 
     * **$v$**: linear velocity commanded to the robot ($\text{m/s}$)
     * **$k_v$**: proportional gain for linear control
     * **$s_d$**: desired size of the marker’s side (px)
-    * **$s$**: current apparent size of the detected marker side (px)
+    * **$s$**: current apparent size of the detected marker side (px) 
 
 ### 3. treasure_finder (.py)
 
@@ -119,13 +123,63 @@ Once the vision part signals that a target has been reached on `/target_reached`
 #### State machine
 The node cycles between three states (`SERVOING`, `ROTATING`, `STOPPED`). During `SERVOING`, it forwards `/velocity_info` commands or drives straight. Once a new target is reached, it takes over control and switches to `ROTATING` to complete the closed-loop maneuver using `/odometry/filtered`. After the error drops below a threshold and the rotation is complete, it publishes **`id = 0`** to `/target_reached` to reset the vision part, and returns to `SERVOING`.
 
+## Topic
+
+The following table summarizes the main topics used across the nodes to manage perception, visual servoing, and navigation:
+
+| Topic | Message Type | Publisher | Subscriber | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **`/camera/image`** | `sensor_msgs/msg/CompressedImage` | `/ros_gz_image` | `/aruco_tracker`, `/robot_controller` | Raw compressed camera stream from the environment |
+| **`/camera/camera_info`** | `sensor_msgs/msg/CameraInfo` | `/ros_gz_bridge` | `/aruco_tracker`, `/robot_controller` | Camera intrinsic parameters ($K$ matrix) for 3D-to-2D projection |
+| **`/aruco_detections`** | `aruco_opencv_msgs/msg/ArucoDetection` | `/aruco_tracker` | `/robot_controller` | Detected ArUco marker IDs and 3D poses |
+| **`/marker_image`** | `sensor_msgs/msg/CompressedImage` | `/robot_controller` | RViz2 | Debug image highlighting the active target with a bounding circle and ID |
+| **`/marker_info`** | `custom_msgs/msg/Box` | `/robot_controller` | `/velocity_node`, `/treasure_finder` | Custom message containing target `id`, 2D center (`cx`, `cy`), and depth `d` |
+| **`/velocity_info`** | `geometry_msgs/msg/Twist` | `/velocity_node` | `/treasure_finder` | Computed linear and angular velocities for visual servoing alignment |
+| **`/target_reached`** | `std_msgs/msg/Int32` | `/velocity_node`, `/treasure_finder` | `/robot_controller`, `/treasure_finder` | Reached marker ID (used to trigger rotations and reset state with `0`) |
+| **`/odometry/filtered`** | `nav_msgs/msg/Odometry` | `/ekf_filter_node` | `/treasure_finder` | Filtered robot pose and orientation used to control rotations |
+| **`/cmd_vel`** | `geometry_msgs/msg/Twist` | `/treasure_finder` | `/ros_gz_bridge` | Final velocity commands sent to move the robot |
+
+### Topic Remapping
+
+To allow modular communication without topic conflicts (for instance, separating the visual servoing velocities from the final robot commands), several default parameter names declared inside the nodes are remapped at launch time via YAML configuration files:
+
+| Node | Default Topic | Remapped Topic | Role |
+| :--- | :--- | :--- | :--- |
+| **`robot_controller`** | `custom_msg` | **`/marker_info`** | Output marker data (`Box`) |
+| **`velocity_node`** | `cmd_vel` | **`/velocity_info`** | Output visual servoing velocities |
+| **`velocity_node`** | `feedback_info` | **`/target_reached`** | Output reached marker ID |
+
+---
+
+# Simulation
+
+Below is a preview of the simulation played at 3x speed, the original `.mp4` recording is available in `readme_img/simulation.mp4`
+
+<div align="center">
+    <img src="readme_img/simulation.gif" width="80%"/>
+    <br>
+    <p>Video 1: Gazebo and RViz simulation (3x speed)</p>
+</div>
+
+The ROS 2 computation graph below (`rqt_graph`) illustrates the main active nodes and their topic connections
+
+<div align="center">
+    <img src="readme_img/rosgraph.png" width="100%"/>
+    <br>
+    <p>Figure 2: filtered `rqt_graph` showing the main nodes and topics.</p>
+</div>
+
+---
+
 # Requirements
+
 Operating System: Ubuntu (suggested: 24.04)
 ROS 2: suggested distribution Jazzy
 Standard ROS 2 tools:
-- `colcon`
-- Gazebo
-- Rviz
+* `colcon`
+* Gazebo
+* Rviz 
+
 
 To install **Gazebo and Rviz**:
 ```
@@ -136,6 +190,10 @@ sudo apt install ros-jazzy-ros-gz
 # install RViz2
 sudo apt install ros-jazzy-rviz2
 ```
+To install **robot localization** package:
+```
+sudo apt install ros-jazzy-robot-localization
+```
 
 # Running the simulation
 
@@ -145,14 +203,14 @@ git clone -b main https://github.com/TZTozz/Experimental.git
 ```
 
 Move to the root of the workspace, build and source the environmet:
-```bash 
+```bash
 colcon build
 source install/setup.bash
 ```
 
 Using the launch file to run the simulation:
 ```bash
-ros2 launch erl1 spawn_assignment.launch.py 
+ros2 launch erl1 spawn_assignment.launch.py
 ```
 
 # Running using the Real Robot
@@ -163,12 +221,12 @@ git clone -b Lab_setup https://github.com/TZTozz/Experimental.git
 ```
 
 Move to the root of the workspace, build and source the environmet:
-```bash 
+```bash
 colcon build
 source install/setup.bash
 ```
 
 Using the launch file to run the simulation:
 ```bash
-ros2 launch erl1 spawn_assignment.launch.py 
+ros2 launch erl1 spawn_assignment.launch.py
 ```
