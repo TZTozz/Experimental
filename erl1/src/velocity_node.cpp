@@ -46,7 +46,7 @@ class Velocity: public rclcpp::Node
             // velocity calculation
             // Width: 640
              
-            int cx = 640 / 2;
+            int cx = 320 / 2;
             int s_d = 166;
             float k_w = 0.01;
             float k_v = 0.02;
