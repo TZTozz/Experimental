@@ -21,12 +21,19 @@ class TreasureFinder(Node):
         self.declare_parameter('reached_topic', 'target_reached')
         self.declare_parameter('odom_topic', '/odometry/filtered')
         self.declare_parameter('marker_info_topic', 'marker_info')
+        
+        # New parameters for maximum velocities
+        self.declare_parameter('max_linear_vel', 0.2)
+        self.declare_parameter('max_angular_vel', 0.5)
 
         vel_topic = self.get_parameter('velocity_topic').value
         vel_info_topic = self.get_parameter('velocity_info_topic').value
         reached_topic = self.get_parameter('reached_topic').value
         odom_topic = self.get_parameter('odom_topic').value
         marker_info_topic = self.get_parameter('marker_info_topic').value
+        
+        self.max_linear_vel = self.get_parameter('max_linear_vel').value
+        self.max_angular_vel = self.get_parameter('max_angular_vel').value
 
         # Publishers
         self.cmd_pub = self.create_publisher(Twist, vel_topic, 10)
@@ -55,6 +62,15 @@ class TreasureFinder(Node):
         self.timer = self.create_timer(0.1, self.control_loop)
         self.get_logger().info('Treasure Finder started in SERVOING mode.')
 
+    def send_clamped_twist(self, msg: Twist):
+        """Helper method to enforce maximum velocity limits before publishing."""
+        # Clamp linear velocity
+        msg.linear.x = max(min(msg.linear.x, self.max_linear_vel), -self.max_linear_vel)
+        # Clamp angular velocity
+        msg.angular.z = max(min(msg.angular.z, self.max_angular_vel), -self.max_angular_vel)
+        
+        self.cmd_pub.publish(msg)
+
     def marker_info_callback(self, msg):
         self.current_seen_id = msg.id
 
@@ -67,7 +83,7 @@ class TreasureFinder(Node):
             return
 
         self.last_valid_vel_time = self.get_clock().now()
-        self.cmd_pub.publish(msg)
+        self.send_clamped_twist(msg)
 
     def odom_callback(self, msg):
         q = msg.pose.pose.orientation
@@ -114,8 +130,9 @@ class TreasureFinder(Node):
             twist = Twist()
 
             if abs(err) > self.rotation_error_threshold:
-                twist.angular.z = max(min(1.5 * err, 0.2), -0.2)
-                self.cmd_pub.publish(twist)
+                # Proportional control (clamping is now handled by send_clamped_twist)
+                twist.angular.z = 0.5 * err
+                self.send_clamped_twist(twist)
             else:
                 self.get_logger().info('Rotation complete. Resetting target_reached and moving ahead.')
                 self.stop_robot()
@@ -135,15 +152,15 @@ class TreasureFinder(Node):
             )
             if no_recent_servo:
                 twist = Twist()
-                twist.linear.x = 0.02
+                twist.linear.x = 0.02  # Default forward crawl speed
                 twist.angular.z = 0.0
-                self.cmd_pub.publish(twist)
+                self.send_clamped_twist(twist)
 
     def stop_robot(self):
         twist = Twist()
         twist.linear.x = 0.0
         twist.angular.z = 0.0
-        self.cmd_pub.publish(twist)
+        self.cmd_pub.publish(twist)  # Sending exact 0, no need to clamp
 
 def main(args=None):
     rclpy.init(args=args)
