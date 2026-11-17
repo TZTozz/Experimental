@@ -215,18 +215,5 @@ ros2 launch erl1 spawn_assignment.launch.py
 
 # Running using the Real Robot
 
-Clone the repository (selecting the desired branch) inside the `src` folder of your ROS 2 workspace:
-```bash
-git clone -b Lab_setup https://github.com/TZTozz/Experimental.git
-```
-
-Move to the root of the workspace, build and source the environmet:
-```bash
-colcon build
-source install/setup.bash
-```
-
-Using the launch file to run the simulation:
-```bash
-ros2 launch erl1 spawn_assignment.launch.py
+To start “the hunt” on the real robot, switch to the **“Lab_setup”** branch and follow the instructions in the README file.
 ```
