@@ -57,7 +57,14 @@ class Velocity: public rclcpp::Node
             float omega = - k_w * (ux_ - cx);
             float s = f * L / d_;
             float v = k_v * (s_d - s);
+            RCLCPP_INFO(this->get_logger(), "Omega: %.3f", omega);
 
+            if (v > 0.05) v = 0.05;
+            if (omega > 0.1) omega = 0.1;
+            if (omega < -0.1) omega = -0.1;
+
+
+            
 
             // Goal reached feedback
             std_msgs::msg::Int32 msg_feedback;

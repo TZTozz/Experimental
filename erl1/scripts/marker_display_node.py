@@ -97,10 +97,11 @@ class RobotController(Node):
         # Need this because we compare id to make sure we are at the target
         self.first_marker = self.marker_info.markers[0]
         self.marker_id = self.first_marker.marker_id 
-        #self.get_logger().info(f"I see {self.marker_id}")
+        self.get_logger().info(f"I see {self.marker_id}")
+
         
         if self.marker_id in self.marker_array or self.marker_id == 0 or( self.marker_array and self.marker_id != self.marker_array[-1] + 1):
-            #self.get_logger().info(f"I ignore {self.marker_id}")
+            self.get_logger().info(f"I ignore {self.marker_id}")
             self.has_marker = False
             return
         else:
