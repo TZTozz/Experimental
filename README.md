@@ -12,21 +12,6 @@ There are four ArUco markers to reach in order; the robot must stop approximatel
 
 *(\*) The robot is initially positioned so that it faces marker **1** directly.*
 
-
----
-
-# Repository structure
-
-There are only two branches to consider for this assignment
-* **main**: implements the simulation in RViz
-* **lab_setup**: implements the code for connecting to the real robot 
-
-Both are organised in the same way, with three packages:
-* `custom_msgs`: containing the custom message
-* `erl1`: the actual project folder, containing the models, configuration files, launch file and nodes
-* `ros_aruco_opencv`: required to use Aruco 
-
-
 ---
 
 # Architectures
