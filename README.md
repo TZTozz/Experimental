@@ -219,7 +219,7 @@ This project was developed as a collaborative group project for the Expertimenta
 <div align="center">
    <a href="https://github.com/Stef504"><img src="https://github.com/Stef504.png" width="60px"/></a>
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://github.com/Chiara-magn"><img src="https://github.com/Chiara-magn.png" width="60px"/></a>
+  <a href="https://github.com/Chiaera"><img src="https://github.com/Chiaera.png" width="60px"/></a>
   &nbsp;&nbsp;&nbsp;&nbsp;
    <a href="https://github.com/TZTozz"><img src="https://github.com/TZTozz.png" width="60px"/></a>
   &nbsp;&nbsp;&nbsp;&nbsp;
