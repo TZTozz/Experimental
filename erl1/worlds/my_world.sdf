@@ -116,17 +116,17 @@
       <self_collide>false</self_collide>
     </model>
     <include>
-      <uri>file:///root/.gz/fuel/fuel.gazebosim.org/openrobotics/models/picking_shelves/1</uri>
+      <uri>model://picking_shelves</uri>
       <name>Picking_Shelves</name>
       <pose>1.5512079105188787 -4.7394813542405911 -5.7085468586852234e-07 -5.7514183647754742e-19 1.0907019887972635e-19 3.154317618825903e-27</pose>
     </include>
     <include>
-      <uri>file:///home/ubuntu/gazebo_models/table_marble</uri>
+      <uri>model://table_marble</uri>
       <name>table_marble</name>
       <pose>-0.94349453608592615 3.0178451395249168 0.64800000000000002 0 0 0</pose>
     </include>
     <include>
-      <uri>file:///home/ubuntu/gazebo_models/brick_box_3x1x3</uri>
+      <uri>model://brick_box_3x1x3</uri>
       <name>brick_box_3x1x3</name>
       <pose>-1.9555685728008525 -4.5662466093090748 0 0 0 0</pose>
     </include>
