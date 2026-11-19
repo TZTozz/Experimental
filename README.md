@@ -224,4 +224,6 @@ This project was developed as a collaborative group project for the Expertimenta
    <a href="https://github.com/TZTozz"><img src="https://github.com/TZTozz.png" width="60px"/></a>
   &nbsp;&nbsp;&nbsp;&nbsp;
    <a href="https://github.com/Mat-Muz"><img src="https://github.com/Mat-Muz.png" width="60px"/></a>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+   <a href="https://github.com/AndreaLaura-23"><img src="https://github.com/AndreaLaura-23.png" width="60px"/></a>
 </div>
