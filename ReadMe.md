@@ -10,7 +10,7 @@ For general architecture details and control formulas, please refer to the READM
 ## Nodes
 
 The division into the three main nodes has been preserved:
-- **Node 1 (`marker_image.py`)**: senses the environment and projects marker coordinates
+- **Node 1 (`marker_display_node.py`)**: senses the environment and projects marker coordinates
 - **Node 2 (`velocity.cpp`)**: computes Visual Servoing velocities
 - **Node 3 (`treasure_finder.py`)**: coordinates navigation and state transitions
 
@@ -102,7 +102,7 @@ To try the code on the real robot you need to be connected to the Connect to lab
 Every robot has a ID (to substitute in robot_ID in the fellow code) write over, you need that number for connecting to the robot:
 
 ```
-export ROS_DOMAIN_ID= robot_ID
+export ROS_DOMAIN_ID= <robot_ID>
 
 #to verify the connection
 echo $ROS_DOMAIN_ID 
