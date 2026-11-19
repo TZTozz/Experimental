@@ -26,6 +26,7 @@ Both are organised in the same way, with three packages:
 * `erl1`: the actual project folder, containing the models, configuration files, launch file and nodes
 * `ros_aruco_opencv`: required to use Aruco 
 
+
 ---
 
 # Architectures
@@ -34,7 +35,7 @@ Both are organised in the same way, with three packages:
 
 The programme is divided into three nodes. The following names of the topics used in the README reflect the remapped names (as shown in the various yaml files)
 
-### 1. marker_image (.py)
+### 1. marker_display_node (.py)
 It is responsible for sensing the environment. It receives images from the `/camera/camera_info` and detects markers using the `/aruco_detections` topic.
 
 The target is visually seen with a red circle and the marker's ID. This image is published on the `/marker_image` topic. To ensure that the robot follows the correct sequence of the markers, it analyses the marker IDs received from the `/target_reached` topic. 
@@ -129,7 +130,7 @@ The following table summarizes the main topics used across the nodes to manage p
 
 | Topic | Message Type | Publisher | Subscriber | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| **`/camera/image`** | `sensor_msgs/msg/CompressedImage` | `/ros_gz_image` | `/aruco_tracker`, `/robot_controller` | Raw compressed camera stream from the environment |
+| **`/camera/image/compressed`** | `sensor_msgs/msg/CompressedImage` | `/ros_gz_image` | `/aruco_tracker`, `/robot_controller` | Raw compressed camera stream from the environment |
 | **`/camera/camera_info`** | `sensor_msgs/msg/CameraInfo` | `/ros_gz_bridge` | `/aruco_tracker`, `/robot_controller` | Camera intrinsic parameters ($K$ matrix) for 3D-to-2D projection |
 | **`/aruco_detections`** | `aruco_opencv_msgs/msg/ArucoDetection` | `/aruco_tracker` | `/robot_controller` | Detected ArUco marker IDs and 3D poses |
 | **`/marker_image`** | `sensor_msgs/msg/CompressedImage` | `/robot_controller` | RViz2 | Debug image highlighting the active target with a bounding circle and ID |
@@ -213,7 +214,14 @@ Using the launch file to run the simulation:
 ros2 launch erl1 spawn_assignment.launch.py
 ```
 
-# Running using the Real Robot
-
-To start “the hunt” on the real robot, switch to the **“Lab_setup”** branch and follow the instructions in the README file.
-```
+## Authors
+This project was developed as a collaborative group project for the Expertimental Robotics course in Robotics Engineering Master's Degree at the University of Genova.
+<div align="center">
+   <a href="https://github.com/Stef504"><img src="https://github.com/Stef504.png" width="60px"/></a>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/Chiara-magn"><img src="https://github.com/Chiara-magn.png" width="60px"/></a>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+   <a href="https://github.com/TZTozz"><img src="https://github.com/TZTozz.png" width="60px"/></a>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+   <a href="https://github.com/Mat-Muz"><img src="https://github.com/Mat-Muz.png" width="60px"/></a>
+</div>
