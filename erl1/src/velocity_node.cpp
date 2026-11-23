@@ -44,7 +44,7 @@ class Velocity: public rclcpp::Node
     
     private:
         void info_callback(const custom_msgs::msg::Box::SharedPtr msg){
-            RCLCPP_INFO(this->get_logger(), "Info marker: %d,\nPose: %d, %d \nDistance: %f m", msg->id, msg->cx, msg->cy, msg->d);
+            RCLCPP_INFO(this->get_logger(), "Info marker: %d,\nCenter of the marker (x,y): %d px, %d px \nDistance: %f m", msg->id, msg->cx, msg->cy, msg->d);
             ux_ = msg->cx;
             uy_ = msg->cy;
             d_ = msg->d;

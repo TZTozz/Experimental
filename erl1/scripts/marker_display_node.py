@@ -105,7 +105,7 @@ class RobotController(Node):
             return
         else:
             # so we send to velocity node if we use the correct marker
-            self.get_logger().info(f"{self.marker_array}")
+            self.get_logger().info(f"Already used id's : {self.marker_array}")
             self.has_marker = True     
 
             # 3d position of the marker in camera frame               
@@ -138,7 +138,7 @@ class RobotController(Node):
             self.notify = True
             self.marker_array.append(self.marker_id)
             self.get_logger().info(f'marker appended')
-            self.get_logger().info(f"{self.marker_array}")
+            self.get_logger().info(f"Already used id's :{self.marker_array}")
         else:
             self.notify = False
 
@@ -177,7 +177,7 @@ class RobotController(Node):
             
         # Publish the message continuosly 
         self.publisher_marker.publish(out_msg)
-        self.get_logger().info(f'Reached Target and drawn circle')
+        #self.get_logger().info(f'Reached Target and drawn circle')
         
 
     
